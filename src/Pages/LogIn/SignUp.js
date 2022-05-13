@@ -2,34 +2,31 @@ import React from 'react';
 import auth from '../../firebase.init';
 import { useSignInWithGoogle } from 'react-firebase-hooks/auth';
 import { useForm } from "react-hook-form";
-import { useSignInWithEmailAndPassword } from 'react-firebase-hooks/auth';
+import { useSignInWithEmailAndPassword ,useCreateUserWithEmailAndPassword} from 'react-firebase-hooks/auth';
 import Loading from '../Shared/Loading';
 import { Link } from 'react-router-dom';
-
-
-
-const Login = () => {
-    const [signInWithGoogle, guser, gloading, gerror] = useSignInWithGoogle(auth);
+const SignUp = () => {
+        const [signInWithGoogle, guser, gloading, gerror] = useSignInWithGoogle(auth);
     const { register, formState: { errors }, handleSubmit } = useForm();
-    const [signInWithEmailAndPassword,
-         user, 
-         loading, 
-         error]
-          = useSignInWithEmailAndPassword(auth);
-    
-    if(loading || gloading){
+    const [
+        createUserWithEmailAndPassword,
+        user,
+        loading,
+        error,
+      ] = useCreateUserWithEmailAndPassword(auth);
+
+    if (loading || gloading) {
         return <Loading></Loading>
     }
     let signInError;
-    if(error || gerror){
-      signInError=<p className='text-red-500'>{error.message || gerror.message}</p>
+    if (error || gerror) {
+        signInError = <p className='text-red-500'>{error.message || gerror.message}</p>
     }
-    const onSubmit = data => 
-    {
-        signInWithEmailAndPassword(data.email,data.password)
+    const onSubmit = data => {
+        createUserWithEmailAndPassword(data.email, data.password)
     };
 
-    if (guser) {
+    if (guser ||user) {
 
     }
     return (
@@ -39,7 +36,28 @@ const Login = () => {
                     <h2 className="text-center">LogIn</h2>
                     <form onSubmit={handleSubmit(onSubmit)}>
 
-                    <div className="form-control w-full max-w-xs">
+                        <div className="form-control w-full max-w-xs">
+                            <label className="label">
+                                <span className="label-text">Name</span>
+                            </label>
+                            <input
+                                type="text"
+                                placeholder="Your Name"
+                                className="input input-bordered w-full max-w-xs"
+                                {...register("name", {
+                                    required: {
+                                        value: true,
+                                        message: 'Name is Required'
+                                    },
+                                   
+                                })}
+                            />
+                            <label className="label">
+                                {errors.name?.type === 'required' && <span className="label-text-alt text-red-500">{errors.name.message}</span>}
+                                
+                            </label>
+                        </div>
+                        <div className="form-control w-full max-w-xs">
                             <label className="label">
                                 <span className="label-text">Email</span>
                             </label>
@@ -88,9 +106,9 @@ const Login = () => {
                             </label>
                         </div>
                         {signInError}
-                        <input className='btn w-full max-w-xs text-white' type="submit" value="LogIn" />
+                        <input className='btn w-full max-w-xs text-white' type="submit" value="SignUp" />
                     </form>
-                     <p><small>New to doctors protal <Link to="/signup" className='text-primary font-bold'>Create New Accounted</Link></small></p>
+                    <p><small>New to doctors protal <Link to="/login" className='text-primary font-bold'>Create New Accounted</Link></small></p>
                     <div className='divider'>
                         OR
                     </div>
@@ -101,4 +119,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default SignUp;
