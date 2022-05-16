@@ -1,12 +1,14 @@
 import React from 'react';
 import auth from '../../firebase.init';
-import { useSignInWithGoogle } from 'react-firebase-hooks/auth';
+import { useSignInWithGoogle,useUpdateProfile } from 'react-firebase-hooks/auth';
 import { useForm } from "react-hook-form";
 import { useSignInWithEmailAndPassword ,useCreateUserWithEmailAndPassword} from 'react-firebase-hooks/auth';
 import Loading from '../Shared/Loading';
-import { Link } from 'react-router-dom';
+import { Link,useNavigate } from 'react-router-dom';
 const SignUp = () => {
         const [signInWithGoogle, guser, gloading, gerror] = useSignInWithGoogle(auth);
+        const [updateProfile, updating, updateerror] = useUpdateProfile(auth);
+
     const { register, formState: { errors }, handleSubmit } = useForm();
     const [
         createUserWithEmailAndPassword,
@@ -14,17 +16,21 @@ const SignUp = () => {
         loading,
         error,
       ] = useCreateUserWithEmailAndPassword(auth);
+      const navigate=useNavigate()
 
-    if (loading || gloading) {
+    if (loading || gloading || updating) {
         return <Loading></Loading>
     }
     let signInError;
-    if (error || gerror) {
+    if (error || gerror || updateerror) {
         signInError = <p className='text-red-500'>{error.message || gerror.message}</p>
     }
-    const onSubmit = data => {
-        createUserWithEmailAndPassword(data.email, data.password)
+    const onSubmit =async data => {
+        await createUserWithEmailAndPassword(data.email, data.password)
+        await updateProfile({ displayName:data.name });
+        navigate('/apoointment')
     };
+    
 
     if (guser ||user) {
 
