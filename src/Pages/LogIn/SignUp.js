@@ -5,9 +5,11 @@ import { useForm } from "react-hook-form";
 import { useSignInWithEmailAndPassword ,useCreateUserWithEmailAndPassword} from 'react-firebase-hooks/auth';
 import Loading from '../Shared/Loading';
 import { Link,useNavigate } from 'react-router-dom';
+import UseToken from '../../Hooks/UseToken';
 const SignUp = () => {
         const [signInWithGoogle, guser, gloading, gerror] = useSignInWithGoogle(auth);
         const [updateProfile, updating, updateerror] = useUpdateProfile(auth);
+      const navigate=useNavigate()
 
     const { register, formState: { errors }, handleSubmit } = useForm();
     const [
@@ -16,7 +18,8 @@ const SignUp = () => {
         loading,
         error,
       ] = useCreateUserWithEmailAndPassword(auth);
-      const navigate=useNavigate()
+      const [token]=UseToken(guser ||user)
+
 
     if (loading || gloading || updating) {
         return <Loading></Loading>
@@ -28,12 +31,12 @@ const SignUp = () => {
     const onSubmit =async data => {
         await createUserWithEmailAndPassword(data.email, data.password)
         await updateProfile({ displayName:data.name });
-        navigate('/apoointment')
+        // navigate('/apoointment')
     };
     
 
-    if (guser ||user) {
-
+    if (token) {
+       navigate('/apoointment')
     }
     return (
         <div className='flex h-screen justify-center items-center'>
